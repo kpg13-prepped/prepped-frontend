@@ -515,26 +515,6 @@ function countFromAnswers(answers: Answers, key: string) {
 const STAGE_SEQUENCE = ["Preparing", "Resourcing", "Expanding", "Personalising", "Practising", "Embedding", "Dependable"] as const;
 type StageLabel = typeof STAGE_SEQUENCE[number];
 
-function getStageCopy(stage: StageLabel | Recommendation["stage"]) {
-  switch (stage) {
-    case "Preparing":
-      return { title: "Preparing", text: "You understand your situation and have a clear first step.", next: "Resourcing" as StageLabel };
-    case "Resourcing":
-      return { title: "Resourcing", text: "You are covering the essential baseline and reducing obvious gaps.", next: "Expanding" as StageLabel };
-    case "Expanding":
-      return { title: "Expanding", text: "You are moving beyond the first shock and building deeper continuity.", next: "Personalising" as StageLabel };
-    case "Personalising":
-      return { title: "Personalising", text: "Your setup is being shaped to your real life, place, and people.", next: "Practising" as StageLabel };
-    case "Practising":
-      return { title: "Practising", text: "You are turning ownership into confidence and action.", next: "Embedding" as StageLabel };
-    case "Embedding":
-      return { title: "Embedding", text: "Preparedness is becoming part of your household routines.", next: "Dependable" as StageLabel };
-    case "Dependable":
-      return { title: "Dependable", text: "Your household is steady, maintained, and able to support others.", next: "Dependable" as StageLabel };
-    default:
-      return { title: String(stage), text: "Your plan is progressing.", next: "Resourcing" as StageLabel };
-  }
-}
 
 function buildSelectedReasons(answers: Answers, recommendation: Recommendation) {
   const reasons: string[] = [];
@@ -1010,7 +990,6 @@ export default function PreppedShopifyDiscoveryExperienceV2({ onRequestClose }: 
   const q = questions[step];
   const recommendation = useMemo(() => buildRecommendation(answers), [answers]);
   const selectedReasons = useMemo(() => buildSelectedReasons(answers, recommendation), [answers, recommendation]);
-  const stageCopy = useMemo(() => getStageCopy(recommendation.stage), [recommendation.stage]);
   const progress = Math.round(((step + 1) / questions.length) * 100);
   const hasEmail = Boolean((answers.email as string)?.trim());
 
