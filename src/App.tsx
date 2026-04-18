@@ -512,10 +512,6 @@ function countFromAnswers(answers: Answers, key: string) {
   return Number(answers[key] || 0);
 }
 
-const STAGE_SEQUENCE = ["Preparing", "Resourcing", "Expanding", "Personalising", "Practising", "Embedding", "Dependable"] as const;
-type StageLabel = typeof STAGE_SEQUENCE[number];
-
-
 function buildSelectedReasons(answers: Answers, recommendation: Recommendation) {
   const reasons: string[] = [];
   const locationText = (answers.location_text as string) || "";
