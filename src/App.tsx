@@ -1163,7 +1163,7 @@ export default function PreppedShopifyDiscoveryExperienceV2({ onRequestClose }: 
           }
 
           setBackendProfileId(savedProfileId || null);
-          setSaveSuccess("Your PREPPED plan has been saved on this device and can now reload on refresh.");
+          setSaveSuccess("Saved. Your PREPPED plan can now reload on this device.");
           return data;
         } catch (error) {
           lastError = errorToMessage(error, lastError);
@@ -1188,6 +1188,18 @@ export default function PreppedShopifyDiscoveryExperienceV2({ onRequestClose }: 
       setView("results");
     } catch (error) {
       console.error(error);
+    }
+  }
+
+  async function handleFinishQuiz() {
+    if (saveLoading) return;
+
+    try {
+      await saveProfileToBackend();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setView("results");
     }
   }
 
@@ -1257,10 +1269,6 @@ export default function PreppedShopifyDiscoveryExperienceV2({ onRequestClose }: 
                   ))}
                 </div>
               ) : null}
-            </div>
-
-            <div style={{ marginTop: 6, fontSize: 12, lineHeight: 1.5, color: theme.textMuted }}>
-              Address suggestions use the LINZ-backed lookup. If nothing appears, the app will try your configured backend, same-origin /api, and localhost:3001 in local development.
             </div>
 
             {addressLoading ? (
@@ -1482,7 +1490,7 @@ export default function PreppedShopifyDiscoveryExperienceV2({ onRequestClose }: 
                         <div style={{ display: "grid", gap: 10 }}>
                           <HowItWorks number="01" title="Tell us about your household" text="Place, people, priorities, and what you already have covered." />
                           <HowItWorks number="02" title="See what fits best" text="A clearer starting point, with reasons, not just products." />
-                          <HowItWorks number="03" title="Save and refine later" text="This becomes the basis for a longer-term PREPPED journey." />
+                          <HowItWorks number="03" title="Save and refine later" text="Your plan saves automatically, then you can refine it later with email or account features." />
                         </div>
                       </div>
                     )}
@@ -1545,15 +1553,15 @@ export default function PreppedShopifyDiscoveryExperienceV2({ onRequestClose }: 
                         ) : (
                           <button
                             type="button"
-                            disabled={!canContinue()}
-                            onClick={() => setView("email_gate")}
+                            disabled={!canContinue() || saveLoading}
+                            onClick={() => void handleFinishQuiz()}
                             style={{
                               ...buttonStyle("primary"),
                               background: theme.olive,
                               width: "100%"
                             }}
                           >
-                            Continue
+                            {saveLoading ? "Saving..." : "See my plan"}
                           </button>
                         )}
                       </div>
@@ -1567,7 +1575,7 @@ export default function PreppedShopifyDiscoveryExperienceV2({ onRequestClose }: 
                         {step < questions.length - 1 ? (
                           <button type="button" disabled={!canContinue()} onClick={() => setStep((s) => Math.min(questions.length - 1, s + 1))} style={{ ...buttonStyle("primary"), background: canContinue() ? theme.olive : "#98A27A", width: "100%" }}>Continue</button>
                         ) : (
-                          <button type="button" disabled={!canContinue()} onClick={() => setView("email_gate")} style={{ ...buttonStyle("primary"), background: theme.olive, width: "100%" }}>Continue</button>
+                          <button type="button" disabled={!canContinue() || saveLoading} onClick={() => void handleFinishQuiz()} style={{ ...buttonStyle("primary"), background: theme.olive, width: "100%" }}>{saveLoading ? "Saving..." : "See my plan"}</button>
                         )}
                       </div>
                     )}
@@ -1629,7 +1637,7 @@ export default function PreppedShopifyDiscoveryExperienceV2({ onRequestClose }: 
                       <div>
                         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}><Tag>{recommendation.path}</Tag><Tag>{recommendation.confidence}</Tag><Tag>{recommendation.stage}</Tag>{backendProfileId ? <Tag>Saved plan</Tag> : null}</div>
                         <h2 style={{ margin: 0, fontSize: 20, lineHeight: 1.0, fontWeight: 900, color: "#FFFFFF" }}>A clearer first step, built around your situation</h2>
-                        <p style={{ marginTop: 6, color: "rgba(255,255,255,0.82)", lineHeight: 1.42, fontSize: 12.5 }}>{recommendation.mainProduct.reason}</p>{saveSuccess ? <div style={{ marginTop: 8, color: "rgba(205,226,156,0.95)", fontSize: 13 }}>{saveSuccess}</div> : null}
+                        <p style={{ marginTop: 6, color: "rgba(255,255,255,0.82)", lineHeight: 1.42, fontSize: 12.5 }}>{recommendation.mainProduct.reason}</p>{saveSuccess ? <div style={{ marginTop: 8, color: "rgba(205,226,156,0.95)", fontSize: 13 }}>{saveSuccess}</div> : null}{saveError ? <div style={{ marginTop: 8, color: "rgba(255,208,208,0.95)", fontSize: 13 }}>{saveError}</div> : null}
                       </div>
                       <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 16, padding: 10 }}>
                         <button type="button" onClick={() => setShowWhyPanel((v) => !v)} style={{ background: "none", border: 0, color: "white", padding: 0, width: "100%", textAlign: "left", cursor: "pointer" }}>
